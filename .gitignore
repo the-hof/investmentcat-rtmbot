@@ -1,0 +1,10 @@
+testscript.py
+
+rtmbot.conf
+investmentcat.cfg
+
+venv/
+logs/
+*.log
+
+.idea/
