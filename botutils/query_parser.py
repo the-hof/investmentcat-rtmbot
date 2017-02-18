@@ -31,6 +31,10 @@ def parse_query(query, state, user):
         intent = "GENERIC_HELLO"
     if words_in_string(["help", ], query):
         intent = "HELP"
+    if words_in_string(["market cap"], query):
+        intent = "MARKET_CAP"
+    if words_in_string(["news"], query):
+        intent = "NEWS"
 
     log.l("I decided the intent was " + intent)
     return (intent, entities)
