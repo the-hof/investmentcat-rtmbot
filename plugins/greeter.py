@@ -37,8 +37,14 @@ class ParserPlugin(Plugin):
                         "\"give me the market cap for PG\""
                 state = "IDLE"
             elif intent == "MARKET_CAP":
-                output = finance.ask_market_cap(input)
+                if len(entities) > 0:
+                    output = finance.ask_market_cap(entities[0])
+                else:
+                    output = "I don't know which stock you mean, please say something like 'market cap for AMZN'"
             elif intent == "NEWS":
-                output = finance.ask_news(input)
+                if len(entities) > 0:
+                    output = finance.ask_news(entities[0])
+                else:
+                    output = "I don't know what you mean :("
 
             self.outputs.append([data['channel'],output])

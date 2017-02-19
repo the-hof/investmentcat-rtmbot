@@ -3,35 +3,25 @@ import json
 import re
 from myql.contrib.finance.stockscraper import StockRetriever
 
-def ask_market_cap(query):
-    """Interpret a query for market cap.
-    Right now I'm pretty dumb, so I'm using regex to find the symbol in a phrase"""
-    find_symbol = re.search(r"(for|of) (\w+)", query)
-    if find_symbol:
-        symbol = find_symbol.group(2)
-        stock = get_stock_info(symbol)
+def ask_market_cap(symbol):
+    """Interpret a query for market cap."""
+    stock = get_stock_info(symbol)
 
-        if stock and stock['MarketCapitalization']:
-            return "Market cap for {} is {}".format(stock['symbol'],
-                                                    stock['MarketCapitalization'])
-        else:
-            return "I can't find the information for {}. "\
-                   "Please use the stock symbol to ask me questions.".format(symbol)
+    if stock and stock['MarketCapitalization']:
+        return "Market cap for {} is {}".format(stock['symbol'],
+                                                stock['MarketCapitalization'])
     else:
-        return "I don't know which stock you mean, please say something like 'market cap for AMZN'"
+        return "I can't find the information for {}. "\
+               "Please use the stock symbol to ask me questions.".format(symbol)
 
-def ask_news(query):
+
+def ask_news(symbol):
     """Interpret a query for news for a stock"""
-    find_symbol = re.search(r"(on|for) (\w+)", query)
-    if find_symbol:
-        symbol = find_symbol.group(2)
-        news = get_news_feed(symbol)
-        if news:
-            return news
-        else:
-            return "I don't have any news for you."
+    news = get_news_feed(symbol)
+    if news:
+        return news
     else:
-        return "I don't know what you mean :("
+        return "I don't have any news for you."
 
 def get_stock_info(symbol):
     """Retrive a stock's information
