@@ -37,15 +37,15 @@ class ParserPlugin(Plugin):
                         "Here are some examples of things you can ask me:\n" \
                         "*Market*\n" \
                         "\"what's the news on AMZN\"\n" \
-                        "\"give me the market cap for PG\"\n" \
+                        "\"give me the market cap for KO, PG and ABEV\"\n" \
                         "*Valuations*\n" \
                         "\"add valuation 123 for MMM\"\n" \
                         "\"list valuations\"\n" \
-                        "\"get valuation for GE\""
+                        "\"get valuation for GE, PG and JNJ\""
                 state = "IDLE"
             elif intent == "MARKET_CAP":
                 if len(entities) > 0:
-                    output = finance.ask_market_cap(entities[0])
+                    output = finance.ask_market_cap(entities)
                 else:
                     output = "I don't know which stock you mean, please say something like 'market cap for AMZN'"
             elif intent == "NEWS":

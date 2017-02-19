@@ -42,10 +42,10 @@ def parse_query(query, state, user):
         intent = "HELP"
     if words_in_string(["market cap"], query):
         intent = "MARKET_CAP"
-        find_symbol = re.search(r"(for|of) (\w+)", query)
-        if find_symbol:
-            symbol = find_symbol.group(2)
-            entities.append(symbol)
+        symbols = re.sub(r".* (for|of)", "", query)
+        symbols = symbols.replace("and", ",")
+        for symbol in symbols.split(","):
+            entities.append(symbol.strip())
     if words_in_string(["news"], query):
         intent = "NEWS"
         find_symbol = re.search(r"(on|for) (\w+)", query)

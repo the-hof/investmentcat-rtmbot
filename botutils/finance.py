@@ -1,19 +1,22 @@
 """Gets financial data"""
 import json
-import re
 from myql.contrib.finance.stockscraper import StockRetriever
 
-def ask_market_cap(symbol):
+def ask_market_cap(symbols):
     """Interpret a query for market cap."""
-    stock = get_stock_info(symbol)
+    stocks = get_stock_info(symbols)
 
-    if stock and stock['MarketCapitalization']:
-        return "Market cap for {} is {}".format(stock['symbol'],
-                                                stock['MarketCapitalization'])
-    else:
-        return "I can't find the information for {}. "\
-               "Please use the stock symbol to ask me questions.".format(symbol)
-
+    if stocks:
+        text = ""
+        for stock in stocks:
+            if stock['MarketCapitalization']:
+                text += ("Market cap for {} is {}\n"
+                         .format(stock['symbol'],
+                                 stock['MarketCapitalization']))
+            else:
+                text += ("I can't find the information for {}.\n"
+                         .format(stock['symbol']))
+    return text
 
 def ask_news(symbol):
     """Interpret a query for news for a stock"""
@@ -23,18 +26,22 @@ def ask_news(symbol):
     else:
         return "I don't have any news for you."
 
-def get_stock_info(symbol):
-    """Retrive a stock's information
+def get_stock_info(symbols):
+    """Retrive information for multiple stocks
     For documentation on StockRetriever methods, please refer to:
     https://myql.readthedocs.io/en/latest/stockscraper/"""
     stocks = StockRetriever(format='json', debug=False)
-    response = stocks.get_current_info([symbol])
+    response = stocks.get_current_info(symbols)
     data = json.loads(response.content)
     # print data
     try:
-        stock = data['query']['results']['quote']
-        # print stock
-        return stock
+        if isinstance(data['query']['results']['quote'], list):
+            stocks = data['query']['results']['quote']
+        else:
+            print "this is an object!"
+            stocks = []
+            stocks.append(data['query']['results']['quote'])
+        return stocks
     except ValueError, exception:
         print exception
         return None
