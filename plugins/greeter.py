@@ -8,6 +8,7 @@ import botutils.query_parser as q
 import botutils.state_manager as state_manager
 
 import botutils.finance as finance
+import botutils.valuation as v
 
 conf = Config()
 slack_channel = conf['slack']['channel']
@@ -32,9 +33,15 @@ class ParserPlugin(Plugin):
                 output = "hello"
                 state = "IDLE"
             elif intent == "HELP":
-                output = "I am here to help you manage your investment research.  " \
-                        "Ask me something like \"what's the news on AMZN\" or "\
-                        "\"give me the market cap for PG\""
+                output = "I am here to help you manage your investment research.\n" \
+                        "Here are some examples of things you can ask me:\n" \
+                        "*Market*\n" \
+                        "\"what's the news on AMZN\"\n" \
+                        "\"give me the market cap for PG\"\n" \
+                        "*Valuations*\n" \
+                        "\"add valuation 123 for MMM\"\n" \
+                        "\"list valuations\"\n" \
+                        "\"get valuation for GE\""
                 state = "IDLE"
             elif intent == "MARKET_CAP":
                 if len(entities) > 0:
@@ -46,5 +53,11 @@ class ParserPlugin(Plugin):
                     output = finance.ask_news(entities[0])
                 else:
                     output = "I don't know what you mean :("
+            elif intent == "ADD_VALUATION":
+                output = v.ask_add_valuation(entities)
+            elif intent == "GET_VALUATIONS":
+                output = v.ask_get_valuation(entities)
+            elif intent == "LIST_VALUATIONS":
+                output = v.ask_list_valuations()
 
             self.outputs.append([data['channel'],output])
