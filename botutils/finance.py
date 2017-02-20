@@ -1,50 +1,47 @@
 """Gets financial data"""
 import json
-import re
 from myql.contrib.finance.stockscraper import StockRetriever
 
-def ask_market_cap(query):
-    """Interpret a query for market cap.
-    Right now I'm pretty dumb, so I'm using regex to find the symbol in a phrase"""
-    find_symbol = re.search(r"(for|of) (\w+)", query)
-    if find_symbol:
-        symbol = find_symbol.group(2)
-        stock = get_stock_info(symbol)
+def ask_market_cap(symbols):
+    """Interpret a query for market cap."""
+    stocks = get_stock_info(symbols)
 
-        if stock and stock['MarketCapitalization']:
-            return "Market cap for {} is {}".format(stock['symbol'],
-                                                    stock['MarketCapitalization'])
-        else:
-            return "I can't find the information for {}. "\
-                   "Please use the stock symbol to ask me questions.".format(symbol)
-    else:
-        return "I don't know which stock you mean, please say something like 'market cap for AMZN'"
+    if stocks:
+        text = ""
+        for stock in stocks:
+            if stock['MarketCapitalization']:
+                text += ("Market cap for {} is {}\n"
+                         .format(stock['symbol'],
+                                 stock['MarketCapitalization']))
+            else:
+                text += ("I can't find the information for {}.\n"
+                         .format(stock['symbol']))
+    return text
 
-def ask_news(query):
+def ask_news(symbol):
     """Interpret a query for news for a stock"""
-    find_symbol = re.search(r"(on|for) (\w+)", query)
-    if find_symbol:
-        symbol = find_symbol.group(2)
-        news = get_news_feed(symbol)
-        if news:
-            return news
-        else:
-            return "I don't have any news for you."
+    news = get_news_feed(symbol)
+    if news:
+        return news
     else:
-        return "I don't know what you mean :("
+        return "I don't have any news for you."
 
-def get_stock_info(symbol):
-    """Retrive a stock's information
+def get_stock_info(symbols):
+    """Retrive information for multiple stocks
     For documentation on StockRetriever methods, please refer to:
     https://myql.readthedocs.io/en/latest/stockscraper/"""
     stocks = StockRetriever(format='json', debug=False)
-    response = stocks.get_current_info([symbol])
+    response = stocks.get_current_info(symbols)
     data = json.loads(response.content)
     # print data
     try:
-        stock = data['query']['results']['quote']
-        # print stock
-        return stock
+        if isinstance(data['query']['results']['quote'], list):
+            stocks = data['query']['results']['quote']
+        else:
+            print "this is an object!"
+            stocks = []
+            stocks.append(data['query']['results']['quote'])
+        return stocks
     except ValueError, exception:
         print exception
         return None
