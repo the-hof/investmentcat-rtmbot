@@ -3,6 +3,7 @@ testscript.py
 rtmbot.conf
 investmentcat.cfg
 bot_config.py
+state_db.json
 
 .vscode
 

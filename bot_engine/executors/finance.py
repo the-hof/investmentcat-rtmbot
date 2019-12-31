@@ -1,21 +1,63 @@
 """Gets financial data"""
 import json
-from myql.contrib.finance.stockscraper import StockRetriever
+import requests
+from .config import Config
+
+from math import log10, floor
+
+class Finance():
+    def __init__(self):
+        conf = Config()
+        self.api_key = conf["worldtradingdata"]["api_key"]
+        self.api_base = "https://api.worldtradingdata.com/api/v1/stock"
+
+    def make_api_request(self, symbols):
+        symbol_string = ",".join(symbols)
+        print (f"... making api request for {symbol_string}")
+        url = f"{self.api_base}?symbol={symbol_string}&api_token={self.api_key}"
+        print (f"... request url = {url}")
+        try:
+            response = requests.get(url).json()
+            return response['data']
+        except Exception as e:
+            print(e)
+
+def format_significance(number, significance=2):
+    work_number = int(number)
+    suffix = ""
+    if work_number > 1000000000:
+        work_number = work_number / 1000000000
+        suffix = "B"
+    elif work_number > 1000000:
+        work_number = work_number / 1000000
+        suffix = "M"
+    sig_string = f"%.{significance}g"
+    display_number = '%s' % float(sig_string % work_number)
+    rounded = display_number + suffix
+    return rounded
 
 def ask_market_cap(symbols):
     """Interpret a query for market cap."""
-    stocks = get_stock_info(symbols)
+    try:
+        stocks = Finance().make_api_request(symbols)
+    except Exception as e:
+        print (e)
 
     if stocks:
         text = ""
         for stock in stocks:
-            if stock['MarketCapitalization']:
-                text += ("Market cap for {} is {}\n"
-                         .format(stock['symbol'],
-                                 stock['MarketCapitalization']))
+            symbol = stock.get("symbol", "")
+            print (f"... evaluating stock data for {symbol}")
+            market_cap_raw = stock.get("market_cap", -1)
+            print (f"... market cap = {market_cap_raw}")
+            market_cap = format_significance(market_cap_raw)
+            print (f"... market cap = {market_cap}")
+
+            if int(market_cap_raw) > 0:
+                text += f"Market cap for {symbol} is {market_cap}\n"
             else:
-                text += ("I can't find the information for {}.\n"
-                         .format(stock['symbol']))
+                text += f"I can't find the information for {symbol}.\n"
+    print (f"final text = {text}")
     return text
 
 def ask_news(symbol):
@@ -26,40 +68,5 @@ def ask_news(symbol):
     else:
         return "I don't have any news for you."
 
-def get_stock_info(symbols):
-    """Retrive information for multiple stocks
-    For documentation on StockRetriever methods, please refer to:
-    https://myql.readthedocs.io/en/latest/stockscraper/"""
-    stocks = StockRetriever(format='json', debug=False)
-    response = stocks.get_current_info(symbols)
-    data = json.loads(response.content)
-    # print data
-    try:
-        if isinstance(data['query']['results']['quote'], list):
-            stocks = data['query']['results']['quote']
-        else:
-            #print "this is an object!"
-            stocks = []
-            stocks.append(data['query']['results']['quote'])
-        return stocks
-    except ValueError as e:
-        print (e)
-        return None
-
 def get_news_feed(symbol):
-    """Get latest news on a stock"""
-    stocks = StockRetriever(format='json', debug=False)
-    response = stocks.get_news_feed(symbol)
-    data = json.loads(response.content)
-    try:
-        news = data['query']['results']['item']
-    except ValueError as e:
-        print (e)
-        return None
-
-    result = []
-    for item in news:
-        url_parts = item['link'].split("*") #strip the yahoo prefix url
-        result.append(url_parts[len(url_parts)-1])
-
-    return "\n".join(result)
+    return None

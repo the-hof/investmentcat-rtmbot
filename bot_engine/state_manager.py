@@ -1,18 +1,23 @@
-"""wraps all user state management calls"""
+from tinydb import TinyDB, Query
+
+state_db = TinyDB('state_db.json')
 
 def get_user_state(user):
-    """
-    gets the current state of the user from persistence
-    :param user:
-    :return:
-    """
-    return "IDLE"
+    try:
+        UserState = Query()
+        result = state_db.search(UserState.slack_user == user)
+        if len(result) > 0:
+            return result[0].get("state", {})
+        return {}
+    except Exception as e:
+        print ("ERROR GETTING STATE")
+        print (str(e))
+        return {}
 
 def save_user_state(user, state):
-    """
-    saves the current state of the user to persistence
-    :param user:
-    :param state:
-    :return:
-    """
-    pass
+    try:
+        UserState = Query()
+        state_db.upsert({'slack_user': user, 'state': state}, UserState.slack_user == user)
+    except Exception as e:
+        print("ERROR SAVING STATE for user {user} : {state} ")
+        print(str(e))
