@@ -1,10 +1,7 @@
 """Parses the incoming query into an intent and an optional array of entities"""
 import re
-from botutils.botlogger import Logger
 
 save_queries = False
-
-log = Logger(logname="investmentcat")
 
 def words_in_string(word_list, string):
     """
@@ -29,7 +26,7 @@ def parse_query(query, state, user):
     entities = []
     intent = ""
 
-    log.l("user " + user + " in state " + state + " asked " + query)
+    print("user " + user + " in state " + state + " asked " + query)
 
     if query == "":
         return intent, entities
@@ -78,9 +75,9 @@ def parse_query(query, state, user):
         for symbol in symbols:
             entities.append(symbol.strip())
 
-    log.l("I decided the intent was " + intent)
+    print("I decided the intent was " + intent)
     if len(entities) > 0:
-        log.l("I found entities " + ",".join(entities))
+        print("I found entities " + ",".join(entities))
     return (intent, entities)
 
 def get_numeric_part(query):

@@ -1,4 +1,4 @@
-import ConfigParser
+import configparser
 import os, sys
 import base64
 
@@ -11,7 +11,7 @@ def Config(config_name='investmentcat'):
     :return:
     """
     conf_path=config_name + '.cfg'
-    config = ConfigParser.ConfigParser()
+    config = configparser.ConfigParser()
     config.read(conf_path)
     dictionary = {}
     for section in config.sections():

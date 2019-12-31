@@ -1,33 +1,32 @@
-from __future__ import print_function
-from __future__ import unicode_literals
-
 from rtmbot.core import Plugin
-from botutils.config import Config
+from .executors.config import Config
 
-import botutils.query_parser as q
-import botutils.state_manager as state_manager
+from . import state_manager
+from . import query_parser
 
-import botutils.finance as finance
-import botutils.valuation as v
+from .executors.finance import ask_market_cap, ask_news
+from .executors.valuation import ask_add_valuation, ask_get_valuation, ask_list_valuations
 
-conf = Config()
-slack_channel = conf['slack']['channel']
-bot_id = str(conf['slack']['bot_id'])
 
-class ParserPlugin(Plugin):
-
+class InvestmentCatBotPlugin(Plugin):
     def process_message(self, data):
-        print (data)
+        conf = Config()
+        slack_channel = conf['slack']['channel']
+        bot_id = str(conf['slack']['bot_id'])
+
+        print (f"data = {data}")
         #only react when specifically addressed in a channel we're monitoring
         if bot_id in data.get('text', '') and data.get('channel', '') == slack_channel:
             input = data['text'].replace("<@" + bot_id + ">", "").strip()
-            user = data['user']
+            user = data.get("user", "")
+            print (f"got user {user}")
 
             output = "meow"
 
             state = state_manager.get_user_state(user)
+            print (f"got state {state}")
 
-            (intent, entities) = q.parse_query(input, state, user)
+            (intent, entities) = query_parser.parse_query(input, state, user)
 
             if intent == "GENERIC_HELLO":
                 output = "hello"
@@ -45,19 +44,19 @@ class ParserPlugin(Plugin):
                 state = "IDLE"
             elif intent == "MARKET_CAP":
                 if len(entities) > 0:
-                    output = finance.ask_market_cap(entities)
+                    output = ask_market_cap(entities)
                 else:
                     output = "I don't know which stock you mean, please say something like 'market cap for AMZN'"
             elif intent == "NEWS":
                 if len(entities) > 0:
-                    output = finance.ask_news(entities[0])
+                    output = ask_news(entities[0])
                 else:
                     output = "I don't know what you mean :("
             elif intent == "ADD_VALUATION":
-                output = v.ask_add_valuation(entities)
+                output = ask_add_valuation(entities)
             elif intent == "GET_VALUATIONS":
-                output = v.ask_get_valuation(entities)
+                output = ask_get_valuation(entities)
             elif intent == "LIST_VALUATIONS":
-                output = v.ask_list_valuations()
+                output = ask_list_valuations()
 
             self.outputs.append([data['channel'],output])

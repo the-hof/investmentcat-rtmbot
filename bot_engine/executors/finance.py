@@ -38,12 +38,12 @@ def get_stock_info(symbols):
         if isinstance(data['query']['results']['quote'], list):
             stocks = data['query']['results']['quote']
         else:
-            print "this is an object!"
+            #print "this is an object!"
             stocks = []
             stocks.append(data['query']['results']['quote'])
         return stocks
-    except ValueError, exception:
-        print exception
+    except ValueError as e:
+        print (e)
         return None
 
 def get_news_feed(symbol):
@@ -53,8 +53,8 @@ def get_news_feed(symbol):
     data = json.loads(response.content)
     try:
         news = data['query']['results']['item']
-    except ValueError, exception:
-        print exception
+    except ValueError as e:
+        print (e)
         return None
 
     result = []
