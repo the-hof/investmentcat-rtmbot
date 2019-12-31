@@ -1,6 +1,6 @@
 """Create valuations"""
 import redis
-from botutils.config import Config
+from .config import Config
 
 class Valuation(object):
     """Access valuations in Redis"""

@@ -2,6 +2,9 @@ testscript.py
 
 rtmbot.conf
 investmentcat.cfg
+bot_config.py
+
+.vscode
 
 venv/
 logs/
