@@ -39,7 +39,6 @@ class InvestmentCatBotPlugin(Plugin):
                 output = "I am here to help you manage your investment research.\n" \
                         "Here are some examples of things you can ask me:\n" \
                         "*Market*\n" \
-                        "\"what's the news on AMZN\"\n" \
                         "\"give me the market cap for KO, PG and ABEV\"\n" \
                         "*Valuations*\n" \
                         "\"add valuation 123 for MMM\"\n" \
