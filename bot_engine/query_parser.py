@@ -86,7 +86,7 @@ def get_numeric_part(query):
     pattern = r"([0-9.,]+)"
     find_numeric = re.search(pattern, query)
     remaining_query = re.sub(pattern, "", query)
-    if find_numeric.groups > 0:
+    if len(find_numeric.groups()) > 0:
         return (find_numeric.group(0),
                 remaining_query)
     else:

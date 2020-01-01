@@ -1,16 +1,17 @@
 from rtmbot.core import Plugin
 from .executors.config import Config
 
-from . import state_manager
+from .state_manager import StateManager
 from . import query_parser
 
 
 from .executors.finance import ask_market_cap, ask_news
 from .executors.valuation import ask_add_valuation, ask_get_valuation, ask_list_valuations
 
+import traceback
 
 class InvestmentCatBotPlugin(Plugin):
-    def process_message(self, data):
+    def process_message_internal(self, data):
         conf = Config()
         slack_channel = conf['slack']['channel']
         bot_id = str(conf['slack']['bot_id'])
@@ -24,6 +25,7 @@ class InvestmentCatBotPlugin(Plugin):
 
             output = "meow"
 
+            state_manager = StateManager()
             state = state_manager.get_user_state(user)
             current_state = state.get("conversation_state", "")
             next_state = state.get("conversation_state", "")
@@ -67,3 +69,10 @@ class InvestmentCatBotPlugin(Plugin):
             state_manager.save_user_state(user, state)
 
             self.outputs.append([data['channel'],output])
+
+    def process_message(self, data):
+        try:
+            self.process_message_internal(data)
+        except Exception as e:
+            print (e)
+            traceback.print_exc()

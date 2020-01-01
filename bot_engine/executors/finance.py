@@ -4,13 +4,14 @@ import requests
 from datetime import datetime
 from .config import Config
 
-from ..state_manager import save_key_value, get_key_value
+from ..state_manager import StateManager
 
 class FinanceAPI():
     def __init__(self):
         conf = Config()
         self.api_key = conf["worldtradingdata"]["api_key"]
         self.api_base = "https://api.worldtradingdata.com/api/v1/stock"
+        self.state_manager = StateManager()
 
     def make_stock_request(self, symbols):
         if symbols == []:
@@ -45,7 +46,8 @@ def ask_market_cap(symbols):
     uncached_symbols = []
     stocks = []
     for symbol in symbols:
-        stock_data = get_key_value(f"SYMBOL_{symbol}")
+        state_manager = StateManager()
+        stock_data = state_manager.get_key_value(f"SYMBOL_{symbol}")
         if stock_data != {}:
             print(f"using cached data for {symbol}")
             stocks.append(stock_data)
@@ -79,7 +81,7 @@ def ask_market_cap(symbols):
                 print (e)
 
             try:
-                save_key_value(cache_key, cache_value)
+                state_manager.save_key_value(cache_key, cache_value)
             except Exception as e:
                 print (e)
 

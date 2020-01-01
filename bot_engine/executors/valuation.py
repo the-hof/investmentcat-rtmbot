@@ -1,29 +1,70 @@
 """Create valuations"""
-import redis
-from .config import Config
+from tinydb import TinyDB, Query
+from datetime import datetime
 
-class Valuation(object):
-    """Access valuations in Redis"""
-    def __init__(self, key="redis"):
-        """Get configurations to open a connection"""
-        conf = Config()
-        self.host = conf[key]['host']
-        self.port = conf[key]['port']
-        self.db_index = conf[key]['db']
-        self.conn = redis.StrictRedis(self.host, self.port, self.db_index)
+from ..state_manager import StateManager
+
+class Valuation():
+    def __init__(self):
+        self.state_db = TinyDB('state_db.json')
+        self.state_manager = StateManager(self.state_db.table("valuation_table"))
 
     def add_valuation(self, symbol, valuation):
-        """Add valuation for one symbol"""
-        return self.conn.hset("valuation", symbol, valuation)
+        cache_key = f"VALUATION_{symbol}"
+        cache_value = {
+            "symbol": symbol,
+            "valuation": valuation,
+            "refresh_date": f"{datetime.today().strftime('%Y-%m-%d')}"
+        }
+        try:
+            self.state_manager.save_key_value(cache_key, cache_value)
+            return 1
+        except Exception as e:
+            print(e)
+            return f"There was a problem saving valuation {valuation} for symbol {symbol}"
 
     def get_valuations(self, symbols):
-        """Get valuations for a list of symbols"""
-        return self.conn.hmget("valuation", symbols)
+        valuations = []
+        for symbol in symbols:
+            cache_value = self.state_manager.get_key_value(f"VALUATION_{symbol}")
+            if cache_value:
+                valuation = cache_value.get("valuation", None)
+            else:
+                valuation = None
+            valuations.append(valuation)
+        return valuations
 
     def list_valuations(self):
-        """List all valuations"""
-        valuations = self.conn.hgetall("valuation")
-        return valuations
+        result = {}
+        # cached_values = db.all()
+        # for value in cached_values:
+        #     symbol = value.get("symbol", "")
+        #     valuation = value.get("valuation", "")
+        #     result[symbol] = valuation
+        return result
+
+# class RedisValuation(object):
+#     """Access valuations in Redis"""
+#     def __init__(self, key="redis"):
+#         """Get configurations to open a connection"""
+#         conf = Config()
+#         self.host = conf[key]['host']
+#         self.port = conf[key]['port']
+#         self.db_index = conf[key]['db']
+#         self.conn = redis.StrictRedis(self.host, self.port, self.db_index)
+
+#     def add_valuation(self, symbol, valuation):
+#         """Add valuation for one symbol"""
+#         return self.conn.hset("valuation", symbol, valuation)
+
+#     def get_valuations(self, symbols):
+#         """Get valuations for a list of symbols"""
+#         return self.conn.hmget("valuation", symbols)
+
+#     def list_valuations(self):
+#         """List all valuations"""
+#         valuations = self.conn.hgetall("valuation")
+#         return valuations
 
 # Static conversational methods to simplify access -----------------------------
 def ask_add_valuation(entities):
