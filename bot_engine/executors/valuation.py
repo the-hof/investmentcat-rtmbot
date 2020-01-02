@@ -28,44 +28,36 @@ class Valuation():
         for symbol in symbols:
             cache_value = self.state_manager.get_key_value(f"VALUATION_{symbol}")
             if cache_value:
-                valuation = cache_value.get("valuation", None)
+                valuation = self.format_valuation(cache_value.get("valuation", None))
             else:
                 valuation = None
             valuations.append(valuation)
         return valuations
 
+    def format_valuation(self, number):
+        int_num = int(number)
+        formatted = str(number)
+        if int_num > 1000000000:
+            int_num = int_num / 1000000000
+            formatted = str(int_num) + "B"
+        elif int_num > 1000000:
+            int_num = int_num / 1000000
+            formatted = str(int_num) + "M"
+        return formatted
+
     def list_valuations(self):
         result = {}
-        # cached_values = db.all()
-        # for value in cached_values:
-        #     symbol = value.get("symbol", "")
-        #     valuation = value.get("valuation", "")
-        #     result[symbol] = valuation
+        records = self.state_manager.get_all_keys()
+        for record in records:
+            key_name = record.get("key", "")
+            if key_name.startswith("VALUATION_"):
+                value = record.get("value", {})
+                symbol = value.get("symbol", "")
+                valuation = self.format_valuation(value.get("valuation", ""))
+                result[symbol] = valuation
+
         return result
-
-# class RedisValuation(object):
-#     """Access valuations in Redis"""
-#     def __init__(self, key="redis"):
-#         """Get configurations to open a connection"""
-#         conf = Config()
-#         self.host = conf[key]['host']
-#         self.port = conf[key]['port']
-#         self.db_index = conf[key]['db']
-#         self.conn = redis.StrictRedis(self.host, self.port, self.db_index)
-
-#     def add_valuation(self, symbol, valuation):
-#         """Add valuation for one symbol"""
-#         return self.conn.hset("valuation", symbol, valuation)
-
-#     def get_valuations(self, symbols):
-#         """Get valuations for a list of symbols"""
-#         return self.conn.hmget("valuation", symbols)
-
-#     def list_valuations(self):
-#         """List all valuations"""
-#         valuations = self.conn.hgetall("valuation")
-#         return valuations
-
+        
 # Static conversational methods to simplify access -----------------------------
 def ask_add_valuation(entities):
     """Ask to addd a new valuation
