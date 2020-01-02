@@ -36,11 +36,15 @@ class Valuation():
 
     def list_valuations(self):
         result = {}
-        # cached_values = db.all()
-        # for value in cached_values:
-        #     symbol = value.get("symbol", "")
-        #     valuation = value.get("valuation", "")
-        #     result[symbol] = valuation
+        records = self.state_manager.get_all_keys()
+        for record in records:
+            key_name = record.get("key", "")
+            if key_name.startswith("VALUATION_"):
+                value = record.get("value", {})
+                symbol = value.get("symbol", "")
+                valuation = value.get("valuation", "")
+                result[symbol] = valuation
+
         return result
 
 # class RedisValuation(object):
