@@ -34,6 +34,17 @@ class Valuation():
             valuations.append(valuation)
         return valuations
 
+    def format_valuation(self, number):
+        int_num = int(number)
+        formatted = str(number)
+        if int_num > 1000000000:
+            int_num = int_num / 1000000000
+            formatted = str(int_num) + "B"
+        elif int_num > 1000000:
+            int_num = int_num / 1000000
+            formatted = str(int_num) + "M"
+        return formatted
+
     def list_valuations(self):
         result = {}
         records = self.state_manager.get_all_keys()
@@ -42,7 +53,7 @@ class Valuation():
             if key_name.startswith("VALUATION_"):
                 value = record.get("value", {})
                 symbol = value.get("symbol", "")
-                valuation = value.get("valuation", "")
+                valuation = self.format_valuation(value.get("valuation", ""))
                 result[symbol] = valuation
 
         return result
