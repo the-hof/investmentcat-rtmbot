@@ -57,30 +57,7 @@ class Valuation():
                 result[symbol] = valuation
 
         return result
-
-# class RedisValuation(object):
-#     """Access valuations in Redis"""
-#     def __init__(self, key="redis"):
-#         """Get configurations to open a connection"""
-#         conf = Config()
-#         self.host = conf[key]['host']
-#         self.port = conf[key]['port']
-#         self.db_index = conf[key]['db']
-#         self.conn = redis.StrictRedis(self.host, self.port, self.db_index)
-
-#     def add_valuation(self, symbol, valuation):
-#         """Add valuation for one symbol"""
-#         return self.conn.hset("valuation", symbol, valuation)
-
-#     def get_valuations(self, symbols):
-#         """Get valuations for a list of symbols"""
-#         return self.conn.hmget("valuation", symbols)
-
-#     def list_valuations(self):
-#         """List all valuations"""
-#         valuations = self.conn.hgetall("valuation")
-#         return valuations
-
+        
 # Static conversational methods to simplify access -----------------------------
 def ask_add_valuation(entities):
     """Ask to addd a new valuation
