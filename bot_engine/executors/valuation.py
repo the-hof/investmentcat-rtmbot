@@ -28,7 +28,7 @@ class Valuation():
         for symbol in symbols:
             cache_value = self.state_manager.get_key_value(f"VALUATION_{symbol}")
             if cache_value:
-                valuation = cache_value.get("valuation", None)
+                valuation = self.format_valuation(cache_value.get("valuation", None))
             else:
                 valuation = None
             valuations.append(valuation)
