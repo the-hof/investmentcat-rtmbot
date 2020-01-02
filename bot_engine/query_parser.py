@@ -83,11 +83,38 @@ def parse_query(query, state, user):
 def get_numeric_part(query):
     """Gets the numeric part in the string
     Returns numeric part and what's left of the string"""
-    pattern = r"([0-9.,]+)"
-    find_numeric = re.search(pattern, query)
-    remaining_query = re.sub(pattern, "", query)
-    if len(find_numeric.groups()) > 0:
-        return (find_numeric.group(0),
-                remaining_query)
-    else:
-        return (None, remaining_query)
+
+    # test for pattern of 123B and convert to billions
+    raw_number_pattern = r"([0-9.,]+[bB]{1})"
+    find_numeric = re.search(raw_number_pattern, query)
+    remaining_query = re.sub(raw_number_pattern, "", query)
+    if find_numeric is not None:
+        if len(find_numeric.groups()) > 0:
+            retval = find_numeric.group(0)
+            retval = retval.replace("b", "000000000")
+            retval = retval.replace("B", "000000000")
+            return (retval,
+                    remaining_query)
+
+    # test for pattern of 123M and convert to millions
+    raw_number_pattern = r"([0-9.,]+[mM]{1})"
+    find_numeric = re.search(raw_number_pattern, query)
+    remaining_query = re.sub(raw_number_pattern, "", query)
+    if find_numeric is not None:
+        if len(find_numeric.groups()) > 0:
+            retval = find_numeric.group(0)
+            retval = retval.replace("m", "000000")
+            retval = retval.replace("M", "000000")
+            return (retval,
+                    remaining_query)
+
+    # test for unsuffixed number and pass through
+    raw_number_pattern = r"([0-9.,]+)"
+    find_numeric = re.search(raw_number_pattern, query)
+    remaining_query = re.sub(raw_number_pattern, "", query)
+    if find_numeric is not None:
+        if len(find_numeric.groups()) > 0:
+            return (find_numeric.group(0),
+                    remaining_query)
+    return (None, remaining_query)
+

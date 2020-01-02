@@ -6,8 +6,8 @@ from ..state_manager import StateManager
 
 class Valuation():
     def __init__(self):
-        self.state_db = TinyDB('state_db.json')
-        self.state_manager = StateManager(self.state_db.table("valuation_table"))
+        state_db = TinyDB('state_db.json')
+        self.state_manager = StateManager(state_db=state_db.table("valuation_table"))
 
     def add_valuation(self, symbol, valuation):
         cache_key = f"VALUATION_{symbol}"
