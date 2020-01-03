@@ -7,7 +7,7 @@ from . import query_parser
 
 from .executors.finance import ask_market_cap, ask_news
 from .executors.valuation import ask_add_valuation, ask_get_valuation, ask_list_valuations
-
+from .executors.recommendations import ask_recommendations
 import traceback
 
 class InvestmentCatBotPlugin(Plugin):
@@ -41,11 +41,14 @@ class InvestmentCatBotPlugin(Plugin):
                 output = "I am here to help you manage your investment research.\n" \
                         "Here are some examples of things you can ask me:\n" \
                         "*Market*\n" \
-                        "\"give me the market cap for KO, PG and ABEV\"\n" \
-                        "*Valuations*\n" \
+                        "\"give me the market cap for KO, PG and ABEV\"\n"
+                output += "*Valuations*\n" \
                         "\"add valuation 123 for MMM\"\n" \
                         "\"list valuations\"\n" \
-                        "\"get valuation for GE, PG and JNJ\""
+                        "\"get valuation for GE, PG and JNJ\"\n"
+                output += "*Research Analysis*\n" \
+                        "\"recommendations\"\n"
+
                 next_state = "IDLE"
             elif intent == "MARKET_CAP":
                 if len(entities) > 0:
@@ -63,6 +66,8 @@ class InvestmentCatBotPlugin(Plugin):
                 output = ask_get_valuation(entities)
             elif intent == "LIST_VALUATIONS":
                 output = ask_list_valuations()
+            elif intent == "RECOMMENDATIONS":
+                output = ask_recommendations()
 
             state.update({"conversation_state": next_state})
 

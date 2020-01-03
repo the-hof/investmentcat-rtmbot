@@ -75,6 +75,10 @@ def parse_query(query, state, user):
         for symbol in symbols:
             entities.append(symbol.strip())
 
+    elif (words_in_string(["analysis"], query) or
+          words_in_string(["recommendations"], query)):
+          intent = "RECOMMENDATIONS"
+
     print("I decided the intent was " + intent)
     if len(entities) > 0:
         print("I found entities " + ",".join(entities))
